@@ -95,8 +95,8 @@ namespace ServerOnSocketsAndStreams
             {
                 Server.activeClients[clientKey] = new ClientProfile(clientSocket);
                 Server.activeClients[clientKey].clientControllers.AddLast(this);
-                Server.activeClients[clientKey].ClientId = clientCookie;
-                ClientQueryHandling(Request, Server.activeClients[clientKey].ClientId, Server.activeClients[clientKey]);
+                Server.activeClients[clientKey].ClientCookie = clientCookie;
+                ClientQueryHandling(Request, Server.activeClients[clientKey].ClientCookie, Server.activeClients[clientKey]);
             }
             //есть активный клиент с таким ключем в списке -> он недавно заходил
             else
@@ -105,7 +105,7 @@ namespace ServerOnSocketsAndStreams
                 if (Server.activeClients[clientKey].clientControllers.Count >= 4)
                     Server.activeClients[clientKey].clientControllers.RemoveFirst();
                 Server.activeClients[clientKey].clientControllers.AddLast(this);
-                ClientQueryHandling(Request, Server.activeClients[clientKey].ClientId, Server.activeClients[clientKey]);
+                ClientQueryHandling(Request, Server.activeClients[clientKey].ClientCookie, Server.activeClients[clientKey]);
             }
             #endregion
         }
@@ -114,7 +114,8 @@ namespace ServerOnSocketsAndStreams
         {
             var views = new Views()
             {
-                Cookie = cookie
+                Cookie = cookie,
+                Client = client
             };
             string requestPattern = "(GET|POST)(\\S|\\s|/)+";
             Regex regex;
@@ -140,7 +141,7 @@ namespace ServerOnSocketsAndStreams
                             switch (requestParsed[1])
                             {
                                 case "/":
-                                    byteResponse = views.StartPage();
+                                    byteResponse = views.MainPage();
                                     break;
                                 case "/favicon.ico":
                                     byteResponse = new byte[1] { 1 };
@@ -177,7 +178,7 @@ namespace ServerOnSocketsAndStreams
                                         break;
                                     }
                                 default:
-                                    byteResponse = views.StartPage();
+                                    byteResponse = views.MainPage();
                                     break;
                             }
                             break;
@@ -188,7 +189,8 @@ namespace ServerOnSocketsAndStreams
                             {
                                 case "/AuthorizationPage":
                                     {
-                                        if (!client.AccountValidation(Request))//проверка на наличие в б/д такого аккаунта
+                                        string login = "";
+                                        if (!client.AccountValidation(Request, out login))//проверка на наличие в б/д такого аккаунта
                                         {
                                             byteResponse = views.AuthorizationPage("Wrong login and/or password, enter again");
                                         }
@@ -199,6 +201,7 @@ namespace ServerOnSocketsAndStreams
                                         else
                                         {
                                             client.clientStatus = ClientStatus.User;
+                                            client.ClientLogin = login;
                                             byteResponse = views.AccountValidationComplete(Request);
                                         }
                                         break;
@@ -224,7 +227,7 @@ namespace ServerOnSocketsAndStreams
                             break;
                         }
                     default:
-                        byteResponse = views.StartPage();
+                        byteResponse = views.MainPage();
                         break;
                 }
                 stream.Write(byteResponse, 0, byteResponse.Length);

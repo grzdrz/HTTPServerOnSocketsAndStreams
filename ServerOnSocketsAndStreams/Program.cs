@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace ServerOnSocketsAndStreams
         {
             var server = new Server();
 
-            //создание таблицы через CodeFirst
+            ////создание таблицы через CodeFirst
             //var db = new Context();
             //db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
             //Client client = new Client();
@@ -26,3 +27,5 @@ namespace ServerOnSocketsAndStreams
         }
     }
 }
+
+//прикрутить к регистрации обязательный email с проверкой

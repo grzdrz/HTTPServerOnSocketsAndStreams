@@ -10,11 +10,18 @@ namespace ServerOnSocketsAndStreams
 {
     public class Views
     {
+        public ClientProfile Client;
         public string Cookie;
         public string IP = "192.168.0.11";
 
-        public byte[] StartPage()
+        public byte[] MainPage()
         {
+            string clientLogin = "";
+            if (Client.clientStatus == ClientStatus.Visitor)
+                clientLogin = "visitor";
+            else
+                clientLogin = Client.ClientLogin;
+
             string ResponseHtml = "<!DOCTYPE html>" +
                                "<html>" +
                                    "<head>" +
@@ -22,8 +29,8 @@ namespace ServerOnSocketsAndStreams
                                    "</head>" +
                                    "<body>" +
                                        "<div>" +
-                                       "<p>ГЛАВНАЯ СТРАНИЦА!!!!!11111</p></br></br>" +
-                                       "<a href=\'http://"+ IP + ":8005/Help\'>Список страниц сайта</a>" +
+                                       "<p>Welcome to the best site in the galaxy "+ clientLogin +", but that's not for sure</p></br></br>" +
+                                       "<a href=\'http://"+ IP + ":8005/Help\'>Site navigator</a>" +
                                        "</dib>" +
                                    "</body>" +
                                 "</html>";
@@ -46,10 +53,11 @@ namespace ServerOnSocketsAndStreams
                        "<body>" +
                            "<div>" +
                            "<p>Справка:</p></br>" +
-                           "<a href='/Method1'> /Method1 - page with image </a></br>" +
-                           "<a href='/AuthorizationPage'> /AuthorizationPage - authorization </a></br>" +
-                           "<a href='/RegistrationPage'> /RegistrationPage - Registration </a></br>" +
-                           "<a href='https://www.youtube.com'> youtube </a></br>" +
+                           "<a href='/'>Main page</a></br>" +
+                           "<a href='/Method1'> Page with image </a></br>" +
+                           "<a href='/AuthorizationPage'> Authorization </a></br>" +
+                           "<a href='/RegistrationPage'> Registration </a></br>" +
+                           "<a href='https://www.youtube.com'> youtube(test ref) </a></br>" +
                            "</dib>" +
                        "</body>" +
                     "</html>";
@@ -173,8 +181,8 @@ namespace ServerOnSocketsAndStreams
                    "</head>" +
                    "<body>" +
                        "<div>" +
-                           "<p>WELCOME EPTA</p></br>" +
-                           "<a href='/'> Main_Page </a>" +
+                           "<p>Welcome " + Client.ClientLogin + "</p></br>" +
+                           "<a href='/'> Main page </a>" +
                        "</dib>" +
                    "</body>" +
                "</html>";

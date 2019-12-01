@@ -21,8 +21,8 @@ namespace ServerOnSocketsAndStreams
     {
         public int Id { get; set; }
 
-        public int loginHesh { get; set; }
-        public int passwordHesh { get; set; }
+        public string login { get; set; }
+        public string passwordHash { get; set; }
 
         public string email { get; set; }
         public string telephoneNumber { get; set; }
