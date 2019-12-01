@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -141,6 +142,9 @@ namespace ServerOnSocketsAndStreams
                                 case "/":
                                     byteResponse = views.StartPage();
                                     break;
+                                case "/favicon.ico":
+                                    byteResponse = new byte[1] { 1 };
+                                    break;
                                 case "/Help":
                                     byteResponse = views.Help();
                                     break;
@@ -167,9 +171,11 @@ namespace ServerOnSocketsAndStreams
                                         byteResponse = views.AuthorizationPage("Enter login and password");
                                         break;
                                     }
-                                case "/favicon.ico":
-                                    byteResponse = new byte[1] { 1 };
-                                    break;
+                                case "/RegistrationPage":
+                                    {
+                                        byteResponse = views.RegistrationPage("Enter login and password");
+                                        break;
+                                    }
                                 default:
                                     byteResponse = views.StartPage();
                                     break;
@@ -182,11 +188,36 @@ namespace ServerOnSocketsAndStreams
                             {
                                 case "/AuthorizationPage":
                                     {
-                                        byteResponse = views.LoginVerification(Request);
-                                        if (byteResponse == null)//если нул значит чтото в логине и/или парле введено неверно
-                                            byteResponse = views.AuthorizationPage("Wrond  login and/or password, enter again");
+                                        if (!client.AccountValidation(Request))//проверка на наличие в б/д такого аккаунта
+                                        {
+                                            byteResponse = views.AuthorizationPage("Wrong login and/or password, enter again");
+                                        }
+                                        //else if(проверить есть ли уже активный клиент по данному аккаунту)
+                                        //{ 
+                                        //    byteResponse = views.AuthorizationPage("Wrong login and/or password, enter again");
+                                        //}
                                         else
-                                            client.ChangeLoginAndStatus(Request);
+                                        {
+                                            client.clientStatus = ClientStatus.User;
+                                            byteResponse = views.AccountValidationComplete(Request);
+                                        }
+                                        break;
+                                    }
+                                case "/RegistrationPage":
+                                    {
+                                        if (!client.AccountVerification1(Request))//проверка на совпадение паролей во 2й и 3й полях для ввода
+                                        {
+                                            byteResponse = views.RegistrationPage("Wrong  login and/or password, enter data again");
+                                        }
+                                        else if (client.AccountVerification2(Request))//проверка на наличие в б/д такого логина
+                                        {
+                                            byteResponse = views.RegistrationPage("Such login already exists, enter data again");
+                                        }
+                                        else
+                                        {
+                                            client.AddAccountToDB(Request);//отправка логина и пароля в б/д
+                                            byteResponse = views.AccountVerificationComplete();
+                                        }
                                         break;
                                     }
                             }

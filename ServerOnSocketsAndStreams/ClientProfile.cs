@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Data.Entity;
 
 namespace ServerOnSocketsAndStreams
 {
@@ -38,24 +39,108 @@ namespace ServerOnSocketsAndStreams
             clientStatus = ClientStatus.Visitor;
         }
 
-        public void ChangeLoginAndStatus(string nameAndPassword)
+        //проверка на наличие 2х одинаковых паролей во 2й и 3й строках
+        //и корректного логина
+        public bool AccountVerification1(string nameAndPasswords)
         {
-            string Name = "";
+            string PasswordPattern = "((Password=)(\\s|\\S)+)(&)\\1";
+            string LoginPattern = "(Name=)([a-z]|[0-9])+";
+            Regex regex1 = new Regex(PasswordPattern);
+            Regex regex2 = new Regex(LoginPattern);
+            MatchCollection matchs1 = regex1.Matches(nameAndPasswords);
+            MatchCollection matchs2 = regex2.Matches(nameAndPasswords);
+            return matchs1.Count != 0 && matchs2.Count != 0;
+        }
+
+        //проверка на наличие введенного логина в б/д клиентов
+        public bool AccountVerification2(string nameAndPasswords)
+        {
+            string LoginPattern = "(Name=)([a-z]|[0-9])+";
+            Regex regex = new Regex(LoginPattern);
+            MatchCollection matchs = regex.Matches(nameAndPasswords);
+            string login = "";
+            foreach (Match e in matchs) login += e.Value;
+            login = login.Split('=')[1];
+            int loginHesh = login.GetHashCode();
+
+            //запрос к б/д
+            var db = new Context();
+            var clientLogin = db.Clients.Where(a => a.loginHesh == loginHesh).ToList();
+
+            return clientLogin.Count != 0;//есть такой логин
+        }
+
+        public void AddAccountToDB(string nameAndPasswords)
+        {
+            string Login = "";
             string Password = "";
 
-            string NamePattern = "(Name=)([a-z])+";
+            string NamePattern = "(Name=)([a-z]|[0-9])+";
             Regex regex = new Regex(NamePattern);
-            MatchCollection matchs = regex.Matches(nameAndPassword);
-            foreach (var e in matchs)
-                Name = e.ToString().Split('=')[1];
+            MatchCollection matchs = regex.Matches(nameAndPasswords);
+            foreach (Match e in matchs)
+            {
+                Login += e.Value;
+                break;
+            }
+            Login = Login.Split('=')[1];
+
+            string PasswordPattern = "(&Password=)(\\s|\\S)+(&)";
+            regex = new Regex(PasswordPattern);
+            matchs = regex.Matches(nameAndPasswords);
+            foreach (Match e in matchs)
+            {
+                Password += e.Value;
+                break;
+            }
+            Password = Password.Split('=', '&')[2];
+
+            //запрос к б/д
+            var db = new Context();
+            var newClient = new Client()
+            {
+                loginHesh = Login.GetHashCode(),
+                passwordHesh = Password.GetHashCode()
+            };
+            db.Clients.Attach(newClient);
+            db.Entry(newClient).State = EntityState.Added;
+            db.SaveChanges();
+        }
+
+        //проверка на наличие введенного логина в б/д клиентов
+        public bool AccountValidation(string nameAndPasswords)
+        {
+            string Login = "";
+            string Password = "";
+
+            string NamePattern = "(Name=)([a-z]|[0-9])+";
+            Regex regex = new Regex(NamePattern);
+            MatchCollection matchs = regex.Matches(nameAndPasswords);
+            foreach (Match e in matchs)
+            {
+                Login += e.Value;
+                break;
+            }
+            Login = Login.Split('=')[1];
 
             string PasswordPattern = "(&Password=)(\\s|\\S)+";
             regex = new Regex(PasswordPattern);
-            matchs = regex.Matches(nameAndPassword);
-            foreach (var e in matchs)
-                Password = e.ToString().Split('=')[1];
+            matchs = regex.Matches(nameAndPasswords);
+            foreach (Match e in matchs)
+            {
+                Password += e.Value;
+                break;
+            }
+            Password = Password.Split('=')[1];
 
-            this.clientStatus = ClientStatus.User;
+            int loginHesh = Login.GetHashCode();
+            int passwordHesh = Password.GetHashCode();
+
+            //запрос к б/д
+            var db = new Context();
+            var clientLogin = db.Clients.Where(a => a.loginHesh == loginHesh && a.passwordHesh == passwordHesh).ToList();
+
+            return clientLogin.Count != 0;//есть такой логин
         }
     }
 }

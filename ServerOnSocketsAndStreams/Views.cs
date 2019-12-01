@@ -46,9 +46,10 @@ namespace ServerOnSocketsAndStreams
                        "<body>" +
                            "<div>" +
                            "<p>Справка:</p></br>" +
-                           "<a href='/Method1'> /Method1 - страница с картинкой </a></br>" +
-                           "<a href='https://www.youtube.com'> ютьюбь </a></br>" +
-                           "<a href='/AuthorizationPage'> /AuthorizationPage - авторизация </a>" +
+                           "<a href='/Method1'> /Method1 - page with image </a></br>" +
+                           "<a href='/AuthorizationPage'> /AuthorizationPage - authorization </a></br>" +
+                           "<a href='/RegistrationPage'> /RegistrationPage - Registration </a></br>" +
+                           "<a href='https://www.youtube.com'> youtube </a></br>" +
                            "</dib>" +
                        "</body>" +
                     "</html>";
@@ -163,37 +164,87 @@ namespace ServerOnSocketsAndStreams
             return Encoding.UTF8.GetBytes(Response);
         }
 
-        public byte[] LoginVerification(string NameAndPassword)
+        public byte[] AccountValidationComplete(string NameAndPassword)
         {
-            string NameAndPasswordPattern = "(Name=)([a-z])+(&Password=)(\\s|\\S)+";
-            Regex regex = new Regex(NameAndPasswordPattern);
-            MatchCollection matchs = regex.Matches(NameAndPassword);
-            if (matchs.Count != 0)
-            {
-                string ResponseHtml = "<!DOCTYPE html>" +
+            string ResponseHtml = "<!DOCTYPE html>" +
+               "<html>" +
+                   "<head>" +
+                       "<meta charset='utf-8'></meta>" +
+                   "</head>" +
+                   "<body>" +
+                       "<div>" +
+                           "<p>WELCOME EPTA</p></br>" +
+                           "<a href='/'> Main_Page </a>" +
+                       "</dib>" +
+                   "</body>" +
+               "</html>";
+
+            string Response = "HTTP/1.1 200 OK" +
+            "\nContent-Type: text/html" +
+            "\nSet-Cookie: clientCookie=" + Cookie +
+            "\nContent-Length: " + ResponseHtml.Length +
+            "\n\n" + ResponseHtml;
+            return Encoding.UTF8.GetBytes(Response);
+        }
+
+        public byte[] RegistrationPage(string phrase)
+        {
+            string ResponseHtml = "<!DOCTYPE html>" +
                    "<html>" +
                        "<head>" +
                            "<meta charset='utf-8'></meta>" +
                        "</head>" +
                        "<body>" +
                            "<div>" +
-                               "<p>WELCOME EPTA</p></br>" +
-                               "<a href='/'> Main_Page </a>" +
+                               "<p>" + phrase + "</p></br>" +
+                               "<form accept-charset='utf-8' method='post'>" +
+                                   "<p>" +
+                                       "<input type='text' name='Name' />" +
+                                   "</p>" +
+                                   "<p>" +
+                                       "<input type='password' name='Password' />" +
+                                   "</p>" +
+                                   "<p>" +
+                                       "<input type='password' name='Password' />" +
+                                   "</p>" +
+                                   "<p>" +
+                                       "<input type='submit' value='Отправить' />" +
+                                   "</p>" +
+                               "</form>" +
                            "</dib>" +
                        "</body>" +
                    "</html>";
 
-                string Response = "HTTP/1.1 200 OK" +
-                "\nContent-Type: text/html" +
-                "\nSet-Cookie: clientCookie=" + Cookie +
-                "\nContent-Length: " + ResponseHtml.Length +
-                "\n\n" + ResponseHtml;
-                return Encoding.UTF8.GetBytes(Response);
-            }
-            else
-            {
-                return null;//типо неверный логин и/или пароль
-            }
+            string Response = "HTTP/1.1 200 OK" +
+            "\nContent-Type: text/html" +
+            "\nSet-Cookie: clientCookie=" + Cookie +
+            "\nContent-Length: " + ResponseHtml.Length +
+            "\n\n" + ResponseHtml;
+            return Encoding.UTF8.GetBytes(Response);
+        }
+
+        public byte[] AccountVerificationComplete()
+        {
+            string ResponseHtml = "<!DOCTYPE html>" +
+               "<html>" +
+                   "<head>" +
+                       "<meta charset='utf-8'></meta>" +
+                   "</head>" +
+                   "<body>" +
+                       "<div>" +
+                           "<p>Registration complete</p></br>" +
+                           "<a href='/AuthorizationPage'> Authorization </a></br>" +
+                           "<a href='/'> Main_Page </a>" +
+                       "</dib>" +
+                   "</body>" +
+               "</html>";
+
+            string Response = "HTTP/1.1 200 OK" +
+            "\nContent-Type: text/html" +
+            "\nSet-Cookie: clientCookie=" + Cookie +
+            "\nContent-Length: " + ResponseHtml.Length +
+            "\n\n" + ResponseHtml;
+            return Encoding.UTF8.GetBytes(Response);
         }
 
         public byte[] WrongStatus()
