@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -13,7 +14,7 @@ namespace ServerOnSocketsAndStreams
     class Server
     {
         public int PORT = 8005;
-        public IPAddress ip = IPAddress.Parse("192.168.0.11");
+        public IPAddress ip = IPAddress.Parse("192.168.0.10");
         public IPEndPoint endPoint;
 
         public static Dictionary<string, ClientProfile> activeClients = new Dictionary<string, ClientProfile>();
@@ -23,6 +24,9 @@ namespace ServerOnSocketsAndStreams
         //запускаем сервер
         public Server()
         {
+            //подготавливаем б/д
+            Database.SetInitializer<Context>(new ContextInitializer());
+
             endPoint = new IPEndPoint(ip, PORT);
             Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             serverSocket.Bind(endPoint);

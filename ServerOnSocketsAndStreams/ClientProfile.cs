@@ -30,10 +30,14 @@ namespace ServerOnSocketsAndStreams
         public string ClientLogin;
         public ClientStatus clientStatus;
 
+        public Context db;
+
         public ClientProfile(Socket currentClientSocket)
         {
             this.currentClientSocket = currentClientSocket;
             clientStatus = ClientStatus.Visitor;
+            db = new Context();
+            db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
         }
 
         //проверка на наличие 2х одинаковых паролей во 2й и 3й строках
@@ -60,8 +64,7 @@ namespace ServerOnSocketsAndStreams
             login = login.Split('=')[1];
 
             //запрос к б/д
-            var db = new Context();
-            db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+            db = new Context();
             var clientLogin = db.Clients.Where(a => a.login == login).ToList();
 
             return clientLogin.Count != 0;//есть такой логин
@@ -93,8 +96,7 @@ namespace ServerOnSocketsAndStreams
             Password = Password.Split('=', '&')[2];
 
             //запрос к б/д
-            var db = new Context();
-            db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+            db = new Context();
             var newClient = new Client()
             {
                 login = Login,
@@ -135,8 +137,7 @@ namespace ServerOnSocketsAndStreams
             string passwordHash = GetHash(password);
 
             //запрос к б/д
-            var db = new Context();
-            db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+            db = new Context();
             var clientLogin = db.Clients.Where(a => a.login == login && a.passwordHash == passwordHash).ToList();
 
             return clientLogin.Count != 0;//есть такой логин

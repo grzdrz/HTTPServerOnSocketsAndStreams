@@ -12,7 +12,7 @@ namespace ServerOnSocketsAndStreams
     {
         public ClientProfile Client;
         public string Cookie;
-        public string IP = "192.168.0.11";
+        public string IP = "192.168.0.10";
 
         public byte[] MainPage()
         {
