@@ -14,14 +14,7 @@ namespace ServerOnSocketsAndStreams
         {
             var server = new Server();
 
-            ////создание таблицы через CodeFirst
-            //var db = new Context();
-            //db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
-            //Client client = new Client();
-            //db.Clients.Attach(client);
-            //db.Entry(client).State = System.Data.Entity.EntityState.Added;
-            //db.SaveChanges();
-            //Console.WriteLine("end");
+            //Console.WriteLine(ComputeWebSocketHandshakeSecurityHash("Iv8io/9s+lYFgZWcXczP8Q=="));
 
             Console.ReadKey();
         }
