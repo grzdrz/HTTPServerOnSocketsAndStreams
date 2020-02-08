@@ -11,8 +11,13 @@ namespace ServerOnSocketsAndStreams
 {
     public class Views
     {
-        public ClientProfile Client;
-        public string Cookie;
+        public ClientSession Client;
+        //public string Cookie;
+
+        public Views(ClientSession client)
+        {
+            Client = client;
+        }
 
         public byte[] MainPage(string pageName, List<string> variables)
         {
@@ -24,31 +29,9 @@ namespace ServerOnSocketsAndStreams
             variables.Add(clientLogin);
 
             return CreateHtmlByteCode(pageName, variables);
-
-            #region "Старый вариант"
-            //string ResponseHtml = "<!DOCTYPE html>" +
-            //                   "<html>" +
-            //                       "<head>" +
-            //                           "<meta charset='utf-8'></meta>" +
-            //                       "</head>" +
-            //                       "<body>" +
-            //                           "<div>" +
-            //                           "<p>Welcome to the best site in the galaxy " + clientLogin + ", but that's not for sure</p></br></br>" +
-            //                           "<a href=\'http://" + IP + ":8005/Help\'>Site navigator</a>" +
-            //                           "</dib>" +
-            //                       "</body>" +
-            //                    "</html>";
-
-            //string Response = "HTTP/1.1 200 OK" +
-            //    "\nContent-Type: text/html" +
-            //    "\nSet-Cookie: cookie1=" + Cookie +
-            //    "\nContent-Length: " + ResponseHtml.Length +
-            //    "\n\n" + ResponseHtml;
-            //return Encoding.UTF8.GetBytes(Response);
-            #endregion
         }
 
-        public byte[] Image(string img)
+        public static byte[] Image(string img)
         {
             byte[] byteImage;
             //var test = Directory.GetCurrentDirectory();
@@ -60,7 +43,7 @@ namespace ServerOnSocketsAndStreams
 
             string headLine = "HTTP/1.1 200 OK" +
                 "\nContent-type: image/png" +
-                "\nSet-Cookie: cookie1=" + Cookie +
+                //"\nSet-Cookie: cookie1=" + Cookie +
                 "\nContent-Length:" + byteImage.Length.ToString() +
                 "\n\n";
             byte[] byteHeadLine = Encoding.UTF8.GetBytes(headLine);
@@ -73,7 +56,7 @@ namespace ServerOnSocketsAndStreams
             return byteImageResponse;
         }
 
-        public byte[] CreateHtmlByteCode(string pageName, List<string> variables)
+        public byte[] CreateHtmlByteCode(string pageName, List<string> variables, Func<string> createCookie = null)
         {
             string html = "";
             Regex regex = null;
@@ -96,179 +79,25 @@ namespace ServerOnSocketsAndStreams
                 byteHttpLine = Encoding.UTF8.GetBytes(html);
             }
 
+            string cookieHeader = "";
+            if (createCookie != null)
+            {
+                Client.ClientCookie = createCookie();
+                cookieHeader = "\nSet-Cookie: cookie1=" + Client.ClientCookie;
+            }
+
             string headLine = "HTTP/1.1 200 OK" +
             "\nContent-Type: text/html" +
-            "\nSet-Cookie: cookie1=" + Cookie +
+            cookieHeader +
             "\nContent-Length: " + byteHttpLine.Length.ToString() +
             "\n\n";
-            byte[] byteHeadLine = Encoding.UTF8.GetBytes(headLine);
 
+            byte[] byteHeadLine = Encoding.UTF8.GetBytes(headLine);
             byte[] byteResponse = new byte[byteHttpLine.Length + byteHeadLine.Length];
             byteHeadLine.CopyTo(byteResponse, 0);
             byteHttpLine.CopyTo(byteResponse, byteHeadLine.Length);
 
             return byteResponse;
         }
-
-        //public byte[] PageWithImage()
-        //{
-        //    string ResponseHtml = "<!DOCTYPE html>" +
-        //           "<html>" +
-        //               "<head>" +
-        //                   "<meta charset='utf-8'></meta>" +
-        //               "</head>" +
-        //               "<body>" +
-        //                   "<div>" +
-        //                     "<img src='images/img1.png'></img>" +
-        //                   "</dib>" +
-        //               "</body>" +
-        //            "</html>";
-
-        //    string Response = "HTTP/1.1 200 OK" +
-        //    "\nContent-Type: text/html" +
-        //    "\nSet-Cookie: cookie1=" + Cookie +
-        //    "\nContent-Length: " + ResponseHtml.Length +
-        //    "\n\n" + ResponseHtml;
-        //    return Encoding.UTF8.GetBytes(Response);
-        //}
-
-        //public byte[] AuthorizationPage(string phrase)
-        //{
-        //    string ResponseHtml = "<!DOCTYPE html>" +
-        //           "<html>" +
-        //               "<head>" +
-        //                   "<meta charset='utf-8'></meta>" +
-        //               "</head>" +
-        //               "<body>" +
-        //                   "<div>" +
-        //                       "<p>" + phrase + "</p></br>" +
-        //                       "<form accept-charset='utf-8' method='post'>" +
-        //                           "<p>" +
-        //                               "<input type='text' name='Name' />" +
-        //                           "</p>" +
-        //                           "<p>" +
-        //                               "<input type='password' name='Password' />" +
-        //                           "</p>" +
-        //                           "<p>" +
-        //                               "<input type='submit' value='Отправить' />" +
-        //                           "</p>" +
-        //                       "</form>" +
-        //                   "</dib>" +
-        //               "</body>" +
-        //           "</html>";
-
-        //    string Response = "HTTP/1.1 200 OK" +
-        //    "\nContent-Type: text/html" +
-        //    "\nSet-Cookie: cookie1=" + Cookie +
-        //    "\nContent-Length: " + ResponseHtml.Length +
-        //    "\n\n" + ResponseHtml;
-        //    return Encoding.UTF8.GetBytes(Response);
-        //}
-
-        //public byte[] AccountValidationComplete(string NameAndPassword)
-        //{
-        //    string ResponseHtml = "<!DOCTYPE html>" +
-        //       "<html>" +
-        //           "<head>" +
-        //               "<meta charset='utf-8'></meta>" +
-        //           "</head>" +
-        //           "<body>" +
-        //               "<div>" +
-        //                   "<p>Welcome " + Client.ClientLogin + "</p></br>" +
-        //                   "<a href='/'> Main page </a>" +
-        //               "</dib>" +
-        //           "</body>" +
-        //       "</html>";
-
-        //    string Response = "HTTP/1.1 200 OK" +
-        //    "\nContent-Type: text/html" +
-        //    "\nSet-Cookie: cookie1=" + Cookie +
-        //    "\nContent-Length: " + ResponseHtml.Length +
-        //    "\n\n" + ResponseHtml;
-        //    return Encoding.UTF8.GetBytes(Response);
-        //}
-
-        //public byte[] RegistrationPage(string phrase)
-        //{
-        //    string ResponseHtml = "<!DOCTYPE html>" +
-        //           "<html>" +
-        //               "<head>" +
-        //                   "<meta charset='utf-8'></meta>" +
-        //               "</head>" +
-        //               "<body>" +
-        //                   "<div>" +
-        //                       "<p>" + phrase + "</p></br>" +
-        //                       "<form accept-charset='utf-8' method='post'>" +
-        //                           "<p>" +
-        //                               "<input type='text' name='Name' />" +
-        //                           "</p>" +
-        //                           "<p>" +
-        //                               "<input type='password' name='Password' />" +
-        //                           "</p>" +
-        //                           "<p>" +
-        //                               "<input type='password' name='Password' />" +
-        //                           "</p>" +
-        //                           "<p>" +
-        //                               "<input type='submit' value='Отправить' />" +
-        //                           "</p>" +
-        //                       "</form>" +
-        //                   "</dib>" +
-        //               "</body>" +
-        //           "</html>";
-
-        //    string Response = "HTTP/1.1 200 OK" +
-        //    "\nContent-Type: text/html" +
-        //    "\nSet-Cookie: cookie1=" + Cookie +
-        //    "\nContent-Length: " + ResponseHtml.Length +
-        //    "\n\n" + ResponseHtml;
-        //    return Encoding.UTF8.GetBytes(Response);
-        //}
-
-        //public byte[] AccountVerificationComplete()
-        //{
-        //    string ResponseHtml = "<!DOCTYPE html>" +
-        //       "<html>" +
-        //           "<head>" +
-        //               "<meta charset='utf-8'></meta>" +
-        //           "</head>" +
-        //           "<body>" +
-        //               "<div>" +
-        //                   "<p>Registration complete</p></br>" +
-        //                   "<a href='/AuthorizationPage'> Authorization </a></br>" +
-        //                   "<a href='/'> Main_Page </a>" +
-        //               "</dib>" +
-        //           "</body>" +
-        //       "</html>";
-
-        //    string Response = "HTTP/1.1 200 OK" +
-        //    "\nContent-Type: text/html" +
-        //    "\nSet-Cookie: cookie1=" + Cookie +
-        //    "\nContent-Length: " + ResponseHtml.Length +
-        //    "\n\n" + ResponseHtml;
-        //    return Encoding.UTF8.GetBytes(Response);
-        //}
-
-        //public byte[] WrongStatus()
-        //{
-        //    string ResponseHtml = "<!DOCTYPE html>" +
-        //           "<html>" +
-        //               "<head>" +
-        //                   "<meta charset='utf-8'></meta>" +
-        //               "</head>" +
-        //               "<body>" +
-        //                   "<div>" +
-        //                   "<p>Visitors can't read this page</p></br>" +
-        //                   "<a href='/AuthorizationPage'> Authorization </a>" +
-        //                   "</dib>" +
-        //               "</body>" +
-        //            "</html>";
-
-        //    string Response = "HTTP/1.1 200 OK" +
-        //    "\nContent-Type: text/html" +
-        //    "\nSet-Cookie: cookie1=" + Cookie +
-        //    "\nContent-Length: " + ResponseHtml.Length +
-        //    "\n\n" + ResponseHtml;
-        //    return Encoding.UTF8.GetBytes(Response);
-        //}
     }
 }

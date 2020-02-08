@@ -53,12 +53,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientProfile.cs" />
-    <Compile Include="Controller.cs" />
+    <Compile Include="ClientSession.cs" />
+    <Compile Include="Controllers\AuthorizationController.cs" />
+    <Compile Include="Controllers\HelpController.cs" />
+    <Compile Include="Controllers\MainPageController.cs" />
+    <Compile Include="Controllers\RegistrationController.cs" />
+    <Compile Include="Controllers\SomePageController.cs" />
+    <Compile Include="Controllers\WebSocketController.cs" />
+    <Compile Include="HtmlRouter.cs" />
+    <Compile Include="QueryHandler.cs" />
     <Compile Include="DBModels.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
+    <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Views.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -17,15 +17,15 @@ namespace ServerOnSocketsAndStreams
         public IPAddress ip = IPAddress.Parse("192.168.0.10");
         public IPEndPoint endPoint;
 
-        public static Dictionary<string, ClientProfile> activeClients = new Dictionary<string, ClientProfile>();
+        //"ip":clientProfile_object
+        public static Dictionary<string, ClientSession> activeClients = new Dictionary<string, ClientSession>();
 
         int numberOfClientRequestToConnect = 0;//TEST
 
         //запускаем сервер
         public Server()
         {
-            //подготавливаем б/д
-            Database.SetInitializer<Context>(new ContextInitializer());
+            //Database.SetInitializer<Context>(new ContextInitializer());
 
             endPoint = new IPEndPoint(ip, PORT);
             Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -38,7 +38,7 @@ namespace ServerOnSocketsAndStreams
                 Console.WriteLine("\n==============>NEW_CLIENT_ACCEPT_" + (++numberOfClientRequestToConnect) + "_<==============\n");
                 Task task = Task.Run(() =>
                 {
-                    Controller controller = new Controller(clientSocket, numberOfClientRequestToConnect);
+                    QueryHandler controller = new QueryHandler(clientSocket, numberOfClientRequestToConnect);
                 });
             }
 
@@ -46,15 +46,6 @@ namespace ServerOnSocketsAndStreams
     }
 }
 
-//После отключения клиента(клиентское приложение пользователя закрылось или чтото типо того)
-//клиент переподключается к серверу и проходит проверку IP адреса через сокет на наличие таких же IP адресов в б/д текущих клиентов
-//если такой клиент уже заходил на сервер, то его сущность с сокетом останется в б/д без изменений, а нового сокета создано не будет.
-//А т.к.
-
-//Данный концепт основан на том что связь и обмен данными между клиентом и сервером происходит через экземпляры Socket и NetworkStream,
-//а т.к. на стороне сервера при закрытии клиентского приложения они не уничтожаются, 
-//то при перезапуске клиентского приложения и повторного создания этих экз-ов в нём обмен данными можно возобновить без пересоздания
-//экз-ов на стороне сервера.
 
 //steam.DataAvailable меняется на false при первом считывании из потока, т.е. если прислать несколько пакетов через поток, 
 //то цикл while(stream.DataAvailable) для непрерывного считывания этих пакетов за раз не поможет,

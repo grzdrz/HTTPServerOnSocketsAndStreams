@@ -16,14 +16,14 @@ namespace ServerOnSocketsAndStreams
     public enum ClientStatus
     {
         Visitor,
-        User
+        Authorized
     };
 
     //сущность клиента в б/д текущих клиентов(клиенты-сокеты полученные при подключении к серверу)
-    public class ClientProfile
+    public class ClientSession
     {
         //ограничение на количество одновременно поддерживающихся запросов(socket+nstream)
-        public LinkedList<Controller> clientControllers = new LinkedList<Controller>();
+        public LinkedList<QueryHandler> clientControllers = new LinkedList<QueryHandler>();
 
         public Socket currentClientSocket;
         public string ClientCookie;
@@ -32,7 +32,7 @@ namespace ServerOnSocketsAndStreams
 
         public Context db;
 
-        public ClientProfile(Socket currentClientSocket)
+        public ClientSession(Socket currentClientSocket)
         {
             this.currentClientSocket = currentClientSocket;
             clientStatus = ClientStatus.Visitor;
@@ -113,7 +113,7 @@ namespace ServerOnSocketsAndStreams
             string login = "";
             string password = "";
 
-            string NamePattern = "(Name=)([a-z]|[0-9])+";
+            string NamePattern = "(Name=)([a-z]|[0-9])+";////перенести в парсер запроса!!!!!!!!!!!!!!!!
             Regex regex = new Regex(NamePattern);
             MatchCollection matchs = regex.Matches(nameAndPasswords);
             foreach (Match e in matchs)
