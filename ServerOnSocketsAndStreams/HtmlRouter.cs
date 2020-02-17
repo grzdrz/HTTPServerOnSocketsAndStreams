@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ServerOnSocketsAndStreams.Views;
 
 namespace ServerOnSocketsAndStreams
 {
@@ -12,17 +14,35 @@ namespace ServerOnSocketsAndStreams
         Dictionary<string, string> RequestUrlElements;
         QueryHandler QueryHandlerContext;
 
-        public HtmlRouter(QueryHandler queryHandler, Dictionary<string, string[]> parsedRequest)
+        public HtmlRouter(QueryHandler queryHandler)
         {
             QueryHandlerContext = queryHandler;
+            RequestUrlElements = ParseRequestFirstLine(queryHandler.ParsedRequest);
+        }
 
-            RequestUrlElements = new Dictionary<string, string>();
+        public Dictionary<string, string> ParseRequestFirstLine(Dictionary<string, string[]> parsedRequest)
+        {
+            var result = new Dictionary<string, string>();
+            string temp;
 
-            RequestUrlElements.Add("Method", parsedRequest["MainLine"][0]);//GET POST ...
-            RequestUrlElements.Add("Path", parsedRequest["MainLine"][1]);//path/blablabla ...
-            //if (parsedRequest["MainLine"].Length > 2)
-            //    RequestUrlElements.Add("Parameters", parsedRequest["MainLine"][2]);//?key1=value1&key2=value2&...
-            //...
+            result.Add("Method", parsedRequest["MainLine"][0]);//GET POST ...
+
+            temp = new Regex(@"\/.*\?|\/.*").Match(parsedRequest["MainLine"][1])?.ToString();
+            if (temp != null)
+            {
+                if (temp.EndsWith("?"))
+                    temp = new String(temp.Take(temp.Length - 1).ToArray());//отрезаем крайние символы
+                result.Add("Path", temp);// path/bla/bla/bla ...
+            }
+
+            temp = new Regex(@"\?.*").Match(parsedRequest["MainLine"][1])?.ToString();
+            if (temp != null)
+            {
+                temp = new String(temp.Skip(1).ToList().ToArray());
+                result.Add("Parameters", temp);// ?key1=value1&key2=value2&...
+            }
+
+            return result;
         }
 
         public byte[] BuildResponse()
@@ -32,7 +52,7 @@ namespace ServerOnSocketsAndStreams
             switch (RequestUrlElements["Path"])
             {
                 case "/favicon.ico":
-                    return new byte[1] { 1 };
+                    return ViewsManager.CreateImageByteCode("favicon.ico");
                 case "/":
                     controller = new MainPageController(QueryHandlerContext);
                     break;
@@ -42,8 +62,8 @@ namespace ServerOnSocketsAndStreams
                 case "/SomePage":
                     controller = new SomePageController(QueryHandlerContext);
                     break;
-                case "/images/img1.png":
-                    return Views.Image("img1.png");
+                case "/images/img1.png":////
+                    return ViewsManager.CreateImageByteCode("img1.jpg");
                 case "/AuthorizationPage":
                     controller = new AuthorizationController(QueryHandlerContext);
                     break;
@@ -54,9 +74,7 @@ namespace ServerOnSocketsAndStreams
                     controller = new WebSocketController(QueryHandlerContext);
                     break;
                 default:
-                    //controller = new ErrorPageController(QueryHandler);!!!
-                    controller = new MainPageController(QueryHandlerContext);
-                    break;
+                    return ViewsManager.CreateErrorPageByteCode();
             }
 
             return controller.GetViewPage(RequestUrlElements);

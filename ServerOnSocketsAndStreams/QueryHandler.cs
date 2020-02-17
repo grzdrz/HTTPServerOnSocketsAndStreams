@@ -51,7 +51,7 @@ namespace ServerOnSocketsAndStreams
                 dTime = currentTime - startTime;
                 if (dTime.TotalMilliseconds > 5000)
                 {
-                    Console.WriteLine("\n>>Broken Task" + this.numberOfClientRequestToConnect + " close<<\n");
+                    Console.WriteLine("\n>>Broken request" + this.numberOfClientRequestToConnect + " close<<\n");
                     return;
                 }
                 Thread.Sleep(500);
@@ -86,7 +86,7 @@ namespace ServerOnSocketsAndStreams
             else//обычный http
             {
                 if (Server.activeClients.ContainsKey(clientIp))
-                {//непервый запрос от клиента 
+                {//не первый запрос от клиента 
                     if (Server.activeClients[clientIp] != null)
                     {
                         currentClient = Server.activeClients[clientIp];
@@ -162,7 +162,7 @@ namespace ServerOnSocketsAndStreams
                 //                    }
                 //                    break;
                 //                case "/images/img1.png":
-                //                    byteResponse = views.Image("img1.png");
+                //                    byteResponse = views.CreateImageByteCode("img1.png");
                 //                    break;
                 //                case "/AuthorizationPage":
                 //                    {
@@ -260,7 +260,7 @@ namespace ServerOnSocketsAndStreams
                 //stream.Flush();
                 #endregion
                 #region "ОТПРАВКА ОТВЕТА TEST"
-                HtmlRouter htmlRouter = new HtmlRouter(this, ParsedRequest);
+                HtmlRouter htmlRouter = new HtmlRouter(this);
                 byteResponse = htmlRouter.BuildResponse();
 
                 stream.Write(byteResponse, 0, byteResponse.Length);
@@ -345,7 +345,6 @@ namespace ServerOnSocketsAndStreams
                 #endregion
             }
         }
-
 
         private string DecodeWebSocketMessage(byte[] bytes)
         {

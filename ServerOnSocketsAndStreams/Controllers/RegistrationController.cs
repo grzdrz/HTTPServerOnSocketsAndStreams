@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServerOnSocketsAndStreams.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,8 +50,7 @@ namespace ServerOnSocketsAndStreams.Controllers
                 }
             }
 
-            //return Views.MainPage("ErrorPage", htmlVariables);
-            return Views.MainPage("HelpPage", null);
+            return ViewsManager.CreateErrorPageByteCode();
         }
     }
 }

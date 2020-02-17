@@ -7,35 +7,21 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ServerOnSocketsAndStreams
+namespace ServerOnSocketsAndStreams.Views
 {
-    public class Views
+    public class ViewsManager
     {
         public ClientSession Client;
-        //public string Cookie;
 
-        public Views(ClientSession client)
+        public ViewsManager(ClientSession client)
         {
             Client = client;
         }
 
-        public byte[] MainPage(string pageName, List<string> variables)
-        {
-            string clientLogin = "";
-            if (Client.clientStatus == ClientStatus.Visitor)
-                clientLogin = "visitor";
-            else
-                clientLogin = Client.ClientLogin;
-            variables.Add(clientLogin);
-
-            return CreateHtmlByteCode(pageName, variables);
-        }
-
-        public static byte[] Image(string img)
+        public static byte[] CreateImageByteCode(string img)
         {
             byte[] byteImage;
-            //var test = Directory.GetCurrentDirectory();
-            using (FileStream fs = new FileStream("..\\..\\img2.jpg", FileMode.Open))
+            using (FileStream fs = new FileStream("..\\..\\Images\\" + img, FileMode.Open))
             {
                 byteImage = new byte[fs.Length];
                 fs.Read(byteImage, 0, byteImage.Length);
@@ -43,7 +29,6 @@ namespace ServerOnSocketsAndStreams
 
             string headLine = "HTTP/1.1 200 OK" +
                 "\nContent-type: image/png" +
-                //"\nSet-Cookie: cookie1=" + Cookie +
                 "\nContent-Length:" + byteImage.Length.ToString() +
                 "\n\n";
             byte[] byteHeadLine = Encoding.UTF8.GetBytes(headLine);
@@ -72,7 +57,7 @@ namespace ServerOnSocketsAndStreams
                 if (!(variables is null))
                     for (int i = 0; i < variables.Count; i++)
                     {
-                        regex = new Regex("/--variable" + i + "--/");
+                        regex = new Regex("<variable id=" + i + "></variable>");
                         html = regex.Replace(html, variables[i]);
                     }
 
@@ -98,6 +83,18 @@ namespace ServerOnSocketsAndStreams
             byteHttpLine.CopyTo(byteResponse, byteHeadLine.Length);
 
             return byteResponse;
+        }
+
+        public static byte[] CreateErrorPageByteCode()
+        {
+            string headLine = "HTTP/1.1 404 Not Found" +
+            "\nContent-Type: text/html" +
+            "\nContent-Length: 0" +
+            "\n\n";
+
+            byte[] byteHeadLine = Encoding.UTF8.GetBytes(headLine);
+
+            return byteHeadLine;
         }
     }
 }

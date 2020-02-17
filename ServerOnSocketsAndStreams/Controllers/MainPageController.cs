@@ -19,9 +19,13 @@ namespace ServerOnSocketsAndStreams.Controllers
             //}
 
             var htmlVariables = new List<string>();
+            if (QueryHandlerContext.currentClient.clientStatus == ClientStatus.Visitor)
+                htmlVariables.Add("visitor");
+            else
+                htmlVariables.Add(QueryHandlerContext.currentClient.ClientLogin);
             htmlVariables.Add(QueryHandlerContext.clientIp);
 
-            return Views.MainPage("MainPage", htmlVariables);
+            return Views.CreateHtmlByteCode("MainPage", htmlVariables);
         }
     }
 }

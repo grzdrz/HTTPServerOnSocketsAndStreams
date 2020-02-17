@@ -56,34 +56,41 @@
     <Compile Include="ClientSession.cs" />
     <Compile Include="Controllers\AuthorizationController.cs" />
     <Compile Include="Controllers\HelpController.cs" />
+    <Compile Include="Controllers\HtmlElementsControllerTEST.cs" />
     <Compile Include="Controllers\MainPageController.cs" />
     <Compile Include="Controllers\RegistrationController.cs" />
     <Compile Include="Controllers\SomePageController.cs" />
     <Compile Include="Controllers\WebSocketController.cs" />
     <Compile Include="HtmlRouter.cs" />
+    <Compile Include="Models\ClientsContext.cs" />
+    <Compile Include="Models\ContextInitializer.cs" />
     <Compile Include="QueryHandler.cs" />
-    <Compile Include="DBModels.cs" />
+    <Compile Include="Models\ClientModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
-    <Compile Include="Controllers\Controller.cs" />
-    <Compile Include="Views.cs" />
+    <Compile Include="Controllers\BaseController\Controller.cs" />
+    <Compile Include="Views\ViewsManager\ViewsManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\favicon.ico" />
+    <Content Include="Images\img1.jpg" />
     <Content Include="Views\AccountValidationCompletePage.html" />
     <Content Include="Views\AccountVerificationCompletePage.html" />
     <Content Include="Views\AuthorizationPage.html" />
     <Content Include="Views\HelpPage.html" />
+    <Content Include="Views\HtmlElementsPage.html" />
     <Content Include="Views\MainPage.html" />
     <Content Include="Views\PageWithImage.html" />
     <Content Include="Views\RegistrationPage.html" />
     <Content Include="Views\WebSocketTest.html" />
     <Content Include="Views\WrongStatusPage.html" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

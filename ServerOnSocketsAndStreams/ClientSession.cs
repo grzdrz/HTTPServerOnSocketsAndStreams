@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Data.Entity;
 using System.Security.Cryptography;
+using ServerOnSocketsAndStreams.Models;
 
 namespace ServerOnSocketsAndStreams
 {
@@ -30,13 +31,13 @@ namespace ServerOnSocketsAndStreams
         public string ClientLogin;
         public ClientStatus clientStatus;
 
-        public Context db;
+        public ClientsContext db;
 
         public ClientSession(Socket currentClientSocket)
         {
             this.currentClientSocket = currentClientSocket;
             clientStatus = ClientStatus.Visitor;
-            db = new Context();
+            db = new ClientsContext();
             db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
         }
 
@@ -46,8 +47,8 @@ namespace ServerOnSocketsAndStreams
         {
             string PasswordPattern = "((Password=)([a-z]|[0-9])+)(&)\\1";
             string LoginPattern = "(Name=)([a-z]|[0-9])+";
-            Regex regex1 = new Regex(PasswordPattern);
-            Regex regex2 = new Regex(LoginPattern);
+            Regex regex1 = new Regex(PasswordPattern, RegexOptions.IgnoreCase);
+            Regex regex2 = new Regex(LoginPattern, RegexOptions.IgnoreCase);
             MatchCollection matchs1 = regex1.Matches(nameAndPasswords);
             MatchCollection matchs2 = regex2.Matches(nameAndPasswords);
             return matchs1.Count != 0 && matchs2.Count != 0;
@@ -57,14 +58,14 @@ namespace ServerOnSocketsAndStreams
         public bool AccountVerification2(string nameAndPasswords)
         {
             string LoginPattern = "(Name=)([a-z]|[0-9])+";
-            Regex regex = new Regex(LoginPattern);
+            Regex regex = new Regex(LoginPattern, RegexOptions.IgnoreCase);
             MatchCollection matchs = regex.Matches(nameAndPasswords);
             string login = "";
             foreach (Match e in matchs) login += e.Value;
             login = login.Split('=')[1];
 
             //запрос к б/д
-            db = new Context();
+            db = new ClientsContext();
             var clientLogin = db.Clients.Where(a => a.login == login).ToList();
 
             return clientLogin.Count != 0;//есть такой логин
@@ -76,7 +77,7 @@ namespace ServerOnSocketsAndStreams
             string Password = "";
 
             string NamePattern = "(Name=)([a-z]|[0-9])+";
-            Regex regex = new Regex(NamePattern);
+            Regex regex = new Regex(NamePattern, RegexOptions.IgnoreCase);
             MatchCollection matchs = regex.Matches(nameAndPasswords);
             foreach (Match e in matchs)
             {
@@ -86,7 +87,7 @@ namespace ServerOnSocketsAndStreams
             Login = Login.Split('=')[1];
 
             string PasswordPattern = "(&Password=)([a-z]|[0-9])+(&)";
-            regex = new Regex(PasswordPattern);
+            regex = new Regex(PasswordPattern, RegexOptions.IgnoreCase);
             matchs = regex.Matches(nameAndPasswords);
             foreach (Match e in matchs)
             {
@@ -96,7 +97,7 @@ namespace ServerOnSocketsAndStreams
             Password = Password.Split('=', '&')[2];
 
             //запрос к б/д
-            db = new Context();
+            db = new ClientsContext();
             var newClient = new Client()
             {
                 login = Login,
@@ -114,7 +115,7 @@ namespace ServerOnSocketsAndStreams
             string password = "";
 
             string NamePattern = "(Name=)([a-z]|[0-9])+";////перенести в парсер запроса!!!!!!!!!!!!!!!!
-            Regex regex = new Regex(NamePattern);
+            Regex regex = new Regex(NamePattern, RegexOptions.IgnoreCase);
             MatchCollection matchs = regex.Matches(nameAndPasswords);
             foreach (Match e in matchs)
             {
@@ -125,7 +126,7 @@ namespace ServerOnSocketsAndStreams
             Login = login;
 
             string PasswordPattern = "(&Password=)([a-z]|[0-9])+";
-            regex = new Regex(PasswordPattern);
+            regex = new Regex(PasswordPattern, RegexOptions.IgnoreCase);
             matchs = regex.Matches(nameAndPasswords);
             foreach (Match e in matchs)
             {
@@ -137,7 +138,7 @@ namespace ServerOnSocketsAndStreams
             string passwordHash = GetHash(password);
 
             //запрос к б/д
-            db = new Context();
+            db = new ClientsContext();
             var clientLogin = db.Clients.Where(a => a.login == login && a.passwordHash == passwordHash).ToList();
 
             return clientLogin.Count != 0;//есть такой логин

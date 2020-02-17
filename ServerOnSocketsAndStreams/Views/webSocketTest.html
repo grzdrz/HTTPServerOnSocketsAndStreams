@@ -13,7 +13,7 @@
         socket.onopen = function (e) {
             alert("[open] Соединение установлено");
             alert("Отправляем данные на сервер");
-            let str = '/--variable0--/';
+            let str = '<variable id=0></variable>';
             socket.send(str + '\r\n\r\n');
         };
 

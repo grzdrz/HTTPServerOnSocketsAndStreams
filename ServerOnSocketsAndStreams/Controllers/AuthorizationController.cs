@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServerOnSocketsAndStreams.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,7 +39,7 @@ namespace ServerOnSocketsAndStreams.Controllers
                 }
                 //else if(проверить есть ли уже активный клиент по данному аккаунту)
                 //{ 
-                //    return Views.CreateHtmlByteCode("Wrong login and/or password, enter again");
+                //    return ViewsManager.CreateHtmlByteCode("Wrong login and/or password, enter again");
                 //}
                 else
                 {
@@ -53,8 +54,7 @@ namespace ServerOnSocketsAndStreams.Controllers
                 }
             }
 
-            //return Views.MainPage("ErrorPage", htmlVariables);
-            return Views.MainPage("HelpPage", null);
+            return ViewsManager.CreateErrorPageByteCode();
         }
     }
 }

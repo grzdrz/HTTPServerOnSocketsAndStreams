@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServerOnSocketsAndStreams.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
@@ -11,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace ServerOnSocketsAndStreams
 {
-    class Server
+    public class Server
     {
         public int PORT = 8005;
-        public IPAddress ip = IPAddress.Parse("192.168.0.10");
+        public IPAddress ip = IPAddress.Parse(GetLocalIPAddress());
         public IPEndPoint endPoint;
 
         //"ip":clientProfile_object
@@ -22,10 +23,10 @@ namespace ServerOnSocketsAndStreams
 
         int numberOfClientRequestToConnect = 0;//TEST
 
-        //запускаем сервер
+        //запуск сервера
         public Server()
         {
-            //Database.SetInitializer<Context>(new ContextInitializer());
+            Database.SetInitializer<ClientsContext>(new ContextInitializer());
 
             endPoint = new IPEndPoint(ip, PORT);
             Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -35,13 +36,19 @@ namespace ServerOnSocketsAndStreams
             while (true)
             {
                 Socket clientSocket = serverSocket.Accept();
-                Console.WriteLine("\n==============>NEW_CLIENT_ACCEPT_" + (++numberOfClientRequestToConnect) + "_<==============\n");
+                Console.WriteLine("\n==============>New request accept " + (++numberOfClientRequestToConnect) + "_<==============\n");
                 Task task = Task.Run(() =>
                 {
                     QueryHandler controller = new QueryHandler(clientSocket, numberOfClientRequestToConnect);
                 });
             }
 
+        }
+
+        public static string GetLocalIPAddress()
+        {
+            String host = Dns.GetHostName();
+            return Dns.GetHostByName(host).AddressList[0].ToString();
         }
     }
 }

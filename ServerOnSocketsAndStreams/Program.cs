@@ -14,8 +14,6 @@ namespace ServerOnSocketsAndStreams
         {
             var server = new Server();
 
-            //Console.WriteLine(ComputeWebSocketHandshakeSecurityHash("Iv8io/9s+lYFgZWcXczP8Q=="));
-
             Console.ReadKey();
         }
     }
