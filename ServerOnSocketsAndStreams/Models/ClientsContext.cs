@@ -10,7 +10,8 @@ namespace ServerOnSocketsAndStreams.Models
     public class ClientsContext : DbContext
     {
         public ClientsContext() : base("ServerDB")
-        { }
+        {
+        }
 
         public DbSet<Client> Clients { get; set; }
     }

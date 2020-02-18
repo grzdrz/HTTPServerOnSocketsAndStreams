@@ -11,9 +11,9 @@ namespace ServerOnSocketsAndStreams.Controllers
         public WebSocketController(QueryHandler queryHandler) : base(queryHandler)
         { }
 
-        public override byte[] GetViewPage(Dictionary<string, string> requestUrlElements)
+        public override byte[] GetViewPage(Dictionary<string, string> RequestUrlAndPostMethodElements)
         {
-            //if (requestUrlElements.ContainsKey("Parameters"))
+            //if (RequestUrlAndPostMethodElements.ContainsKey("Parameters"))
             //{
             //    ...
             //}

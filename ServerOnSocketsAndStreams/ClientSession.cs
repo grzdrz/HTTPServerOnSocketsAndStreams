@@ -31,117 +31,100 @@ namespace ServerOnSocketsAndStreams
         public string ClientLogin;
         public ClientStatus clientStatus;
 
-        public ClientsContext db;
-
         public ClientSession(Socket currentClientSocket)
         {
             this.currentClientSocket = currentClientSocket;
             clientStatus = ClientStatus.Visitor;
-            db = new ClientsContext();
-            db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
         }
+
 
         //проверка на наличие 2х одинаковых паролей во 2й и 3й строках
         //и корректного логина
-        public bool AccountVerification1(string nameAndPasswords)
+        public bool AccountVerification1(Dictionary<string, string> nameAndPasswords)
         {
-            string PasswordPattern = "((Password=)([a-z]|[0-9])+)(&)\\1";
-            string LoginPattern = "(Name=)([a-z]|[0-9])+";
-            Regex regex1 = new Regex(PasswordPattern, RegexOptions.IgnoreCase);
-            Regex regex2 = new Regex(LoginPattern, RegexOptions.IgnoreCase);
-            MatchCollection matchs1 = regex1.Matches(nameAndPasswords);
-            MatchCollection matchs2 = regex2.Matches(nameAndPasswords);
-            return matchs1.Count != 0 && matchs2.Count != 0;
+            if (nameAndPasswords.ContainsKey("SecondPassword") && nameAndPasswords.ContainsKey("FirstPassword"))
+            {
+                return nameAndPasswords["FirstPassword"] == nameAndPasswords["SecondPassword"];
+            }
+            return false;
         }
 
         //проверка на наличие введенного логина в б/д клиентов
-        public bool AccountVerification2(string nameAndPasswords)
+        public bool AccountVerification2(Dictionary<string, string> nameAndPasswords)
         {
-            string LoginPattern = "(Name=)([a-z]|[0-9])+";
-            Regex regex = new Regex(LoginPattern, RegexOptions.IgnoreCase);
-            MatchCollection matchs = regex.Matches(nameAndPasswords);
-            string login = "";
-            foreach (Match e in matchs) login += e.Value;
-            login = login.Split('=')[1];
-
-            //запрос к б/д
-            db = new ClientsContext();
-            var clientLogin = db.Clients.Where(a => a.login == login).ToList();
-
-            return clientLogin.Count != 0;//есть такой логин
+            if (nameAndPasswords.ContainsKey("Name"))
+            {
+                try
+                {
+                    //запрос к б/д
+                    using (ClientsContext db = new ClientsContext())
+                    {
+                        db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+                        string name = nameAndPasswords["Name"];
+                        return db.Clients.Any(a => a.login == name);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                }
+            }
+            return false;
         }
 
-        public void AddAccountToDB(string nameAndPasswords)
+        public void AddAccountToDB(Dictionary<string, string> nameAndPasswords)
         {
-            string Login = "";
-            string Password = "";
-
-            string NamePattern = "(Name=)([a-z]|[0-9])+";
-            Regex regex = new Regex(NamePattern, RegexOptions.IgnoreCase);
-            MatchCollection matchs = regex.Matches(nameAndPasswords);
-            foreach (Match e in matchs)
+            if (nameAndPasswords.ContainsKey("Name") && nameAndPasswords.ContainsKey("FirstPassword"))
             {
-                Login += e.Value;
-                break;
+                try
+                {
+                    //запрос к б/д
+                    using (ClientsContext db = new ClientsContext())
+                    {
+                        db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+                        var newClient = new Client()
+                        {
+                            login = nameAndPasswords["Name"],
+                            passwordHash = GetHash(nameAndPasswords["FirstPassword"])
+                        };
+                        db.Clients.Attach(newClient);
+                        db.Entry(newClient).State = EntityState.Added;
+                        db.SaveChanges();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                }
             }
-            Login = Login.Split('=')[1];
-
-            string PasswordPattern = "(&Password=)([a-z]|[0-9])+(&)";
-            regex = new Regex(PasswordPattern, RegexOptions.IgnoreCase);
-            matchs = regex.Matches(nameAndPasswords);
-            foreach (Match e in matchs)
-            {
-                Password += e.Value;
-                break;
-            }
-            Password = Password.Split('=', '&')[2];
-
-            //запрос к б/д
-            db = new ClientsContext();
-            var newClient = new Client()
-            {
-                login = Login,
-                passwordHash = GetHash(Password)
-            };
-            db.Clients.Attach(newClient);
-            db.Entry(newClient).State = EntityState.Added;
-            db.SaveChanges();
+            else throw new Exception("EMPTY_NAME_OR_PASSWORD_POST_PARAMETERS");
         }
 
         //проверка на наличие введенного логина и пароля в б/д клиентов
-        public bool AccountValidation(string nameAndPasswords, out string Login)
+        public bool AccountValidation(Dictionary<string, string> nameAndPasswords, out string Login)
         {
-            string login = "";
-            string password = "";
-
-            string NamePattern = "(Name=)([a-z]|[0-9])+";////перенести в парсер запроса!!!!!!!!!!!!!!!!
-            Regex regex = new Regex(NamePattern, RegexOptions.IgnoreCase);
-            MatchCollection matchs = regex.Matches(nameAndPasswords);
-            foreach (Match e in matchs)
+            Login = "";//////
+            if (nameAndPasswords.ContainsKey("Name") && nameAndPasswords.ContainsKey("FirstPassword"))
             {
-                login += e.Value;
-                break;
+                Login = nameAndPasswords["Name"];/////
+                string name = nameAndPasswords["Name"];
+                string passwordHash = GetHash(nameAndPasswords["FirstPassword"]);
+
+                try
+                {
+                    //запрос к б/д
+                    using (ClientsContext db = new ClientsContext())
+                    {
+                        db.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+                        return db.Clients.Any(a => a.login == name && a.passwordHash == passwordHash);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                }
             }
-            login = login.Split('=')[1];
-            Login = login;
-
-            string PasswordPattern = "(&Password=)([a-z]|[0-9])+";
-            regex = new Regex(PasswordPattern, RegexOptions.IgnoreCase);
-            matchs = regex.Matches(nameAndPasswords);
-            foreach (Match e in matchs)
-            {
-                password += e.Value;
-                break;
-            }
-            password = password.Split('=')[1];
-
-            string passwordHash = GetHash(password);
-
-            //запрос к б/д
-            db = new ClientsContext();
-            var clientLogin = db.Clients.Where(a => a.login == login && a.passwordHash == passwordHash).ToList();
-
-            return clientLogin.Count != 0;//есть такой логин
+            return false;
         }
 
         public string GetHash(string input)
@@ -153,3 +136,13 @@ namespace ServerOnSocketsAndStreams
         }
     }
 }
+
+//LINQ to Entity в теле выражений-аргументов ПЕРЕВАРИВАЕТ ТОЛЬКО обычные переменные
+
+//Сработает
+//string name = "...";
+//db.Clients.Any(a => a.login == name && a.passwordHash == passwordHash); 
+
+//Выкинет ошибку
+//dict["Name"]="...";
+//db.Clients.Any(a => a.login == dict["Name"] && a.passwordHash == passwordHash);

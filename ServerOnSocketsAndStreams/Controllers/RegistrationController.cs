@@ -12,14 +12,9 @@ namespace ServerOnSocketsAndStreams.Controllers
         public RegistrationController(QueryHandler queryHandler) : base(queryHandler)
         { }
 
-        public override byte[] GetViewPage(Dictionary<string, string> requestUrlElements)
+        public override byte[] GetViewPage(Dictionary<string, string> RequestUrlAndPostMethodElements)
         {
-            //if (requestUrlElements.ContainsKey("Parameters"))
-            //{
-            //    ...
-            //}
-
-            if (requestUrlElements["Method"] == "GET")
+            if (RequestUrlAndPostMethodElements["Method"] == "GET")
             {
                 var htmlVariables = new List<string>();
                 htmlVariables.Add("Enter login and password");
@@ -27,25 +22,25 @@ namespace ServerOnSocketsAndStreams.Controllers
                 return Views.CreateHtmlByteCode("RegistrationPage", htmlVariables);
             }
 
-            if (requestUrlElements["Method"] == "POST")
+            if (RequestUrlAndPostMethodElements["Method"] == "POST")
             {
                 //проверка на совпадение паролей во 2й и 3й полях для ввода
-                if (!QueryHandlerContext.currentClient.AccountVerification1(QueryHandlerContext.Request))
+                if (!QueryHandlerContext.currentClient.AccountVerification1(RequestUrlAndPostMethodElements))
                 {
                     var htmlVariables = new List<string>();
                     htmlVariables.Add("Wrong password, enter data again");
                     return Views.CreateHtmlByteCode("RegistrationPage", htmlVariables);
                 }
                 //проверка на наличие в б/д такого логина
-                else if (QueryHandlerContext.currentClient.AccountVerification2(QueryHandlerContext.Request))
+                else if (QueryHandlerContext.currentClient.AccountVerification2(RequestUrlAndPostMethodElements))
                 {
                     var htmlVariables = new List<string>();
                     htmlVariables.Add("Such login already exists, enter data again");
                     return Views.CreateHtmlByteCode("RegistrationPage", htmlVariables);
                 }
                 else
-                {
-                    QueryHandlerContext.currentClient.AddAccountToDB(QueryHandlerContext.Request);//отправка логина и пароля в б/д
+                {//отправка логина и пароля в б/д
+                    QueryHandlerContext.currentClient.AddAccountToDB(RequestUrlAndPostMethodElements);
                     return Views.CreateHtmlByteCode("AccountVerificationCompletePage", null);
                 }
             }

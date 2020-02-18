@@ -11,45 +11,68 @@ namespace ServerOnSocketsAndStreams
 {
     public class HtmlRouter
     {
-        Dictionary<string, string> RequestUrlElements;
-        QueryHandler QueryHandlerContext;
+        // ["Method"]="GET|POST|...";["Path"]="controller/action/...";["UrlParameters"]="key1=value1&key2=value2&...";
+        // ["Name"]=...;["Password"]=...;[["Password"]=...;]
+        public Dictionary<string, string> RequestUrlAndPostMethodElements = new Dictionary<string, string>();
+
+        public QueryHandler QueryHandlerContext;
 
         public HtmlRouter(QueryHandler queryHandler)
         {
             QueryHandlerContext = queryHandler;
-            RequestUrlElements = ParseRequestFirstLine(queryHandler.ParsedRequest);
+            ParseRequestFirstLine(queryHandler.ParsedRequest);
+            ParsePostRequestLine(queryHandler.ParsedRequest);
         }
 
-        public Dictionary<string, string> ParseRequestFirstLine(Dictionary<string, string[]> parsedRequest)
+        public void ParseRequestFirstLine(Dictionary<string, string[]> parsedRequest)
         {
-            var result = new Dictionary<string, string>();
+            //var result = new Dictionary<string, string>();
             string temp;
 
-            result.Add("Method", parsedRequest["MainLine"][0]);//GET POST ...
+            //GET POST ...
+            RequestUrlAndPostMethodElements.Add("Method", parsedRequest["MainLine"][0]);
 
-            temp = new Regex(@"\/.*\?|\/.*").Match(parsedRequest["MainLine"][1])?.ToString();
-            if (temp != null)
+            // controller/action/...
+            temp = new Regex(@"\/.*\?|\/.*", RegexOptions.IgnoreCase)
+                .Match(parsedRequest["MainLine"][1]).ToString();
+            if (temp != "")
             {
                 if (temp.EndsWith("?"))
-                    temp = new String(temp.Take(temp.Length - 1).ToArray());//отрезаем крайние символы
-                result.Add("Path", temp);// path/bla/bla/bla ...
+                    temp = new String(temp.Take(temp.Length - 1).ToArray());//отрезаем последний символ
+                RequestUrlAndPostMethodElements.Add("Path", temp);
             }
 
-            temp = new Regex(@"\?.*").Match(parsedRequest["MainLine"][1])?.ToString();
-            if (temp != null)
+            // ?key1=value1&key2=value2&...
+            temp = new Regex(@"\?.*", RegexOptions.IgnoreCase)
+                .Match(parsedRequest["MainLine"][1]).ToString();
+            if (temp != "")
             {
-                temp = new String(temp.Skip(1).ToList().ToArray());
-                result.Add("Parameters", temp);// ?key1=value1&key2=value2&...
+                temp = new String(temp.Skip(1).ToList().ToArray());//отрезаем первый символ
+                RequestUrlAndPostMethodElements.Add("UrlParameters", temp);
             }
+        }
 
-            return result;
+        public void ParsePostRequestLine(Dictionary<string, string[]> parsedRequest)
+        {
+
+            // Name=value1&Password=value2&Password=value2
+            string temp = new Regex(@"Name=.*(&Password=.*)+", RegexOptions.IgnoreCase)
+                .Match(parsedRequest.Last().Key).ToString();
+            if (temp != "")
+            {
+                string[] temp2 = temp.Split('&');
+                RequestUrlAndPostMethodElements.Add("Name", temp2[0].Split('=')[1]);
+                RequestUrlAndPostMethodElements.Add("FirstPassword", temp2[1].Split('=')[1]);
+                if (temp2.Length > 2)
+                    RequestUrlAndPostMethodElements.Add("SecondPassword", temp2[2].Split('=')[1]);
+            }
         }
 
         public byte[] BuildResponse()
         {
             Controller controller;
 
-            switch (RequestUrlElements["Path"])
+            switch (RequestUrlAndPostMethodElements["Path"])
             {
                 case "/favicon.ico":
                     return ViewsManager.CreateImageByteCode("favicon.ico");
@@ -77,7 +100,7 @@ namespace ServerOnSocketsAndStreams
                     return ViewsManager.CreateErrorPageByteCode();
             }
 
-            return controller.GetViewPage(RequestUrlElements);
+            return controller.GetViewPage(RequestUrlAndPostMethodElements);
         }
     }
 }

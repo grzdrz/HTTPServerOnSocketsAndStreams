@@ -19,6 +19,6 @@ namespace ServerOnSocketsAndStreams.Controllers
             Views = new ViewsManager(QueryHandlerContext.currentClient);
         }
 
-        public abstract byte[] GetViewPage(Dictionary<string, string> requestUrlElements);
+        public abstract byte[] GetViewPage(Dictionary<string, string> RequestUrlAndPostMethodElements);
     }
 }

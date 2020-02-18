@@ -12,13 +12,13 @@ namespace ServerOnSocketsAndStreams.Controllers
         public HtmlElementsController(QueryHandler queryHandler) : base(queryHandler)
         { }
 
-        public override byte[] GetViewPage(Dictionary<string, string> requestUrlElements)
+        public override byte[] GetViewPage(Dictionary<string, string> RequestUrlAndPostMethodElements)
         {
-            if (requestUrlElements["Method"] == "GET")
+            if (RequestUrlAndPostMethodElements["Method"] == "GET")
             {
                 return Views.CreateHtmlByteCode("HtmlElementsPage", null);
             }
-            else if (requestUrlElements["Method"] == "POST")
+            else if (RequestUrlAndPostMethodElements["Method"] == "POST")
             {
                 return Views.CreateHtmlByteCode("HtmlElementsPage", null);//////////
             }
