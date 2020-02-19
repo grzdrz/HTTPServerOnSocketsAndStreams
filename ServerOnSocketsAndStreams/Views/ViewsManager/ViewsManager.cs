@@ -33,7 +33,6 @@ namespace ServerOnSocketsAndStreams.Views
                 "\n\n";
             byte[] byteHeadLine = Encoding.UTF8.GetBytes(headLine);
 
-            //байт код всего вышеперечисленного в определенной последовательности(заголовки+картинка)
             byte[] byteImageResponse = new byte[byteImage.Length + byteHeadLine.Length];
             byteHeadLine.CopyTo(byteImageResponse, 0);
             byteImage.CopyTo(byteImageResponse, byteHeadLine.Length);

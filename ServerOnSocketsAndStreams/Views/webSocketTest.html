@@ -5,10 +5,8 @@
 <body>
     <script>
         "use strict"
-        document.writeln("qwert </br>");
-        alert(document.cookie);
 
-        let socket = new WebSocket("ws://192.168.0.10:8005");
+        let socket = new WebSocket("ws://<variable id=1></variable>");
 
         socket.onopen = function (e) {
             alert("[open] Соединение установлено");

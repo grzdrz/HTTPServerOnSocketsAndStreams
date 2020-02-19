@@ -13,13 +13,9 @@ namespace ServerOnSocketsAndStreams.Controllers
 
         public override byte[] GetViewPage(Dictionary<string, string> RequestUrlAndPostMethodElements)
         {
-            //if (RequestUrlAndPostMethodElements.ContainsKey("Parameters"))
-            //{
-            //    ...
-            //}
-
             var htmlVariables = new List<string>();
             htmlVariables.Add("string for test of web socket query 123456 !@#$%^****");
+            htmlVariables.Add(Server.Ip.ToString() + ":" + Server.PORT.ToString());
 
             return Views.CreateHtmlByteCode("WebSocketTest", htmlVariables);
         }

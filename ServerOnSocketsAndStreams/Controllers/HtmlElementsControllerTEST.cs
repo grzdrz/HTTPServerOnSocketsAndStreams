@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ServerOnSocketsAndStreams.Controllers
-{
+{//////////
     public class HtmlElementsController : Controller
     {
         public HtmlElementsController(QueryHandler queryHandler) : base(queryHandler)
@@ -20,7 +20,7 @@ namespace ServerOnSocketsAndStreams.Controllers
             }
             else if (RequestUrlAndPostMethodElements["Method"] == "POST")
             {
-                return Views.CreateHtmlByteCode("HtmlElementsPage", null);//////////
+                return Views.CreateHtmlByteCode("HtmlElementsPage", null);
             }
 
             return ViewsManager.CreateErrorPageByteCode();

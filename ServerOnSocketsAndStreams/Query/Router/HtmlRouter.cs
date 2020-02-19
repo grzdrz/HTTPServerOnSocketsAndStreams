@@ -15,18 +15,17 @@ namespace ServerOnSocketsAndStreams
         // ["Name"]=...;["Password"]=...;[["Password"]=...;]
         public Dictionary<string, string> RequestUrlAndPostMethodElements = new Dictionary<string, string>();
 
-        public QueryHandler QueryHandlerContext;
+        public QueryHandler QueryContext;
 
         public HtmlRouter(QueryHandler queryHandler)
         {
-            QueryHandlerContext = queryHandler;
+            QueryContext = queryHandler;
             ParseRequestFirstLine(queryHandler.ParsedRequest);
             ParsePostRequestLine(queryHandler.ParsedRequest);
         }
 
         public void ParseRequestFirstLine(Dictionary<string, string[]> parsedRequest)
         {
-            //var result = new Dictionary<string, string>();
             string temp;
 
             //GET POST ...
@@ -54,7 +53,6 @@ namespace ServerOnSocketsAndStreams
 
         public void ParsePostRequestLine(Dictionary<string, string[]> parsedRequest)
         {
-
             // Name=value1&Password=value2&Password=value2
             string temp = new Regex(@"Name=.*(&Password=.*)+", RegexOptions.IgnoreCase)
                 .Match(parsedRequest.Last().Key).ToString();
@@ -77,24 +75,24 @@ namespace ServerOnSocketsAndStreams
                 case "/favicon.ico":
                     return ViewsManager.CreateImageByteCode("favicon.ico");
                 case "/":
-                    controller = new MainPageController(QueryHandlerContext);
+                    controller = new MainPageController(QueryContext);
                     break;
                 case "/Help":
-                    controller = new HelpController(QueryHandlerContext);
+                    controller = new HelpController(QueryContext);
                     break;
                 case "/SomePage":
-                    controller = new SomePageController(QueryHandlerContext);
+                    controller = new SomePageController(QueryContext);
                     break;
                 case "/images/img1.png":////
                     return ViewsManager.CreateImageByteCode("img1.jpg");
                 case "/AuthorizationPage":
-                    controller = new AuthorizationController(QueryHandlerContext);
+                    controller = new AuthorizationController(QueryContext);
                     break;
                 case "/RegistrationPage":
-                    controller = new RegistrationController(QueryHandlerContext);
+                    controller = new RegistrationController(QueryContext);
                     break;
                 case "/WebSocketView":
-                    controller = new WebSocketController(QueryHandlerContext);
+                    controller = new WebSocketController(QueryContext);
                     break;
                 default:
                     return ViewsManager.CreateErrorPageByteCode();

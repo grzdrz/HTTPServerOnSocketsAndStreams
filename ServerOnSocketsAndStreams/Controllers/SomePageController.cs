@@ -13,11 +13,6 @@ namespace ServerOnSocketsAndStreams.Controllers
 
         public override byte[] GetViewPage(Dictionary<string, string> RequestUrlAndPostMethodElements)
         {
-            //if (RequestUrlAndPostMethodElements.ContainsKey("Parameters"))
-            //{
-            //    ...
-            //}
-
             if (QueryHandlerContext.currentClient.clientStatus == ClientStatus.Visitor)
                 return Views.CreateHtmlByteCode("WrongStatusPage", null);
 

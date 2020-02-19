@@ -25,8 +25,7 @@ namespace ServerOnSocketsAndStreams.Controllers
             if (RequestUrlAndPostMethodElements["Method"] == "POST")
             {
                 string login = "";
-                //проверка на наличие в б/д такого аккаунта
-                if (!QueryHandlerContext.currentClient.AccountValidation(RequestUrlAndPostMethodElements, out login))
+                if (!Validation.CheckForSuchAccountInDB(RequestUrlAndPostMethodElements, out login))
                 {
                     var htmlVariables = new List<string>();
                     htmlVariables.Add("Wrong login and/or password, enter again");

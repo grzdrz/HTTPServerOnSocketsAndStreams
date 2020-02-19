@@ -14,12 +14,13 @@ namespace ServerOnSocketsAndStreams
 {
     public class Server
     {
-        public int PORT = 8005;
-        public IPAddress ip = IPAddress.Parse(GetLocalIPAddress());
-        public IPEndPoint endPoint;
+        public static int PORT = 8005;
+        public static IPAddress Ip = GetLocalIPAddress();
+        public IPEndPoint EndPoint;
 
-        //"ip":clientProfile_object
-        public static Dictionary<string, ClientSession> activeClients = new Dictionary<string, ClientSession>();
+        //["IPv4"]:{client_profile_object}
+        //список клиентов обратившихся к серверу, составленный по их IP адресам
+        public static Dictionary<string, ClientSession> ActiveClients = new Dictionary<string, ClientSession>();
 
         int numberOfClientRequestToConnect = 0;//TEST
 
@@ -28,27 +29,25 @@ namespace ServerOnSocketsAndStreams
         {
             Database.SetInitializer<ClientsContext>(new ContextInitializer());
 
-            endPoint = new IPEndPoint(ip, PORT);
+            EndPoint = new IPEndPoint(Ip, PORT);
             Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            serverSocket.Bind(endPoint);
+            serverSocket.Bind(EndPoint);
             serverSocket.Listen(10);
             Console.WriteLine("SERVER STARTED");
             while (true)
             {
                 Socket clientSocket = serverSocket.Accept();
-                Console.WriteLine("\n==============>New request accept " + (++numberOfClientRequestToConnect) + "_<==============\n");
+                Console.WriteLine("\n===>New request accept " + (++numberOfClientRequestToConnect) + "_<===\n");
                 Task task = Task.Run(() =>
                 {
                     QueryHandler controller = new QueryHandler(clientSocket, numberOfClientRequestToConnect);
                 });
             }
-
         }
 
-        public static string GetLocalIPAddress()
+        public static IPAddress GetLocalIPAddress()
         {
-            String host = Dns.GetHostName();
-            return Dns.GetHostByName(host).AddressList[0].ToString();
+            return Dns.GetHostAddresses("").FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
         }
     }
 }

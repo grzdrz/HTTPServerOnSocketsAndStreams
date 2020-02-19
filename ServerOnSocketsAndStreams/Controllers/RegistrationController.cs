@@ -1,4 +1,5 @@
-﻿using ServerOnSocketsAndStreams.Views;
+﻿using ServerOnSocketsAndStreams.Models;
+using ServerOnSocketsAndStreams.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,15 +25,15 @@ namespace ServerOnSocketsAndStreams.Controllers
 
             if (RequestUrlAndPostMethodElements["Method"] == "POST")
             {
-                //проверка на совпадение паролей во 2й и 3й полях для ввода
-                if (!QueryHandlerContext.currentClient.AccountVerification1(RequestUrlAndPostMethodElements))
+                //проверка на совпадение введенных паролей 
+                if (!Validation.ComparePasswords(RequestUrlAndPostMethodElements))
                 {
                     var htmlVariables = new List<string>();
                     htmlVariables.Add("Wrong password, enter data again");
                     return Views.CreateHtmlByteCode("RegistrationPage", htmlVariables);
                 }
                 //проверка на наличие в б/д такого логина
-                else if (QueryHandlerContext.currentClient.AccountVerification2(RequestUrlAndPostMethodElements))
+                else if (Validation.CheckForSuchLoginInDB(RequestUrlAndPostMethodElements))
                 {
                     var htmlVariables = new List<string>();
                     htmlVariables.Add("Such login already exists, enter data again");
@@ -40,7 +41,7 @@ namespace ServerOnSocketsAndStreams.Controllers
                 }
                 else
                 {//отправка логина и пароля в б/д
-                    QueryHandlerContext.currentClient.AddAccountToDB(RequestUrlAndPostMethodElements);
+                    DBManager.AddAccountToDB(RequestUrlAndPostMethodElements);
                     return Views.CreateHtmlByteCode("AccountVerificationCompletePage", null);
                 }
             }
