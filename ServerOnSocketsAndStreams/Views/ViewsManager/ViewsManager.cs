@@ -40,7 +40,7 @@ namespace ServerOnSocketsAndStreams.Views
             return byteImageResponse;
         }
 
-        public byte[] CreateHtmlByteCode(string pageName, List<string> variables, Func<string> createCookie = null)
+        public byte[] CreateHtmlByteCode(string pageName, List<string> variables, bool setCookie = false)
         {
             string html = "";
             Regex regex = null;
@@ -64,9 +64,8 @@ namespace ServerOnSocketsAndStreams.Views
             }
 
             string cookieHeader = "";
-            if (createCookie != null)
+            if (setCookie)
             {
-                Client.ClientCookie = createCookie();
                 cookieHeader = "\nSet-Cookie: cookie1=" + Client.ClientCookie;
             }
 

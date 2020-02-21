@@ -37,14 +37,16 @@ namespace ServerOnSocketsAndStreams.Controllers
                 //}
                 else
                 {
+                    string newCookie = Guid.NewGuid().ToString();
+                    QueryHandlerContext.currentClient.ClientCookie = newCookie;
                     QueryHandlerContext.currentClient.clientStatus = ClientStatus.Authorized;
                     QueryHandlerContext.currentClient.ClientLogin = login;
+
+                    Server.ActiveClients[newCookie] = QueryHandlerContext.currentClient;
+
                     var htmlVariables = new List<string>();
                     htmlVariables.Add(login);
-                    return Views.CreateHtmlByteCode("AccountValidationCompletePage", htmlVariables, () =>
-                    {
-                        return Guid.NewGuid().ToString();
-                    });
+                    return Views.CreateHtmlByteCode("AccountValidationCompletePage", htmlVariables, true);
                 }
             }
 

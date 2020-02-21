@@ -18,8 +18,9 @@ namespace ServerOnSocketsAndStreams
         public static IPAddress Ip = GetLocalIPAddress();
         public IPEndPoint EndPoint;
 
-        //["IPv4"]:{client_profile_object}
-        //список клиентов обратившихся к серверу, составленный по их IP адресам
+        //["Cookie"]:{client_profile_object}
+        //Список авторизованных клиентов обратившихся к серверу, составленный по их куки.
+        //Для не авторизованных клиентов выделяется временный(на текущий запрос) объект сессии.
         public static Dictionary<string, ClientSession> ActiveClients = new Dictionary<string, ClientSession>();
 
         int numberOfClientRequestToConnect = 0;//TEST

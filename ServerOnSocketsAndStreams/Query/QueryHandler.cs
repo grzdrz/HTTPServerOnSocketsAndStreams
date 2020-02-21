@@ -87,33 +87,33 @@ namespace ServerOnSocketsAndStreams
             }
             else//обычный http
             {
-                if (Server.ActiveClients.ContainsKey(clientIp))
-                {//не первый запрос от клиента 
-                    if (Server.ActiveClients[clientIp] != null)
+                if (ParsedRequest.ContainsKey("Cookie"))
+                {
+                    if (Server.ActiveClients.ContainsKey(ParsedRequest["Cookie"][1]))
                     {
-                        currentClient = Server.ActiveClients[clientIp];
-
-                        if (ParsedRequest.ContainsKey("Cookie"))
-                            if (ParsedRequest["Cookie"][1] == currentClient.ClientCookie)
-                                currentClient.clientStatus = ClientStatus.Authorized;
-                        //если куки отсутствуют, либо по какойто причине не совпадают
-                            else
-                                currentClient.clientStatus = ClientStatus.Visitor;
-                        else
-                            currentClient.clientStatus = ClientStatus.Visitor;
+                        //в запросе есть куки и в списке активных клиентов есть ключ с этими куки
+                        //значит клиент авторизован
+                        currentClient = Server.ActiveClients[ParsedRequest["Cookie"][1]];
+                        currentClient.clientStatus = ClientStatus.Authorized;
+                        currentClient.queryHandler = this;
                     }
                     else
-                    {//если ip клиента есть среди активных клиентов, но соответствующего профайла почему то нет
+                    {
+                        //в запросе есть куки, но в списке активных клиентов нет ключа с этими куки
+                        //значит клиент не авторизован, но мог уже быть авторизован на этом сервере,
+                        //а сессия с этими куки по какимто причинам была удалена из словаря
                         currentClient = new ClientSession(clientSocket);
-                        Server.ActiveClients[clientIp] = currentClient;
-                        Server.ActiveClients[clientIp].queryHandler = this;
+                        currentClient.clientStatus = ClientStatus.Visitor;
+                        currentClient.queryHandler = this;
                     }
                 }
                 else
-                {//первый запрос от клиента 
+                {
+                    //в запросе по какой то причине нет куки(еще ниразу не авторизовывался, истек срок годности и куки удалились, ...)
+                    //значит клиент не авторизован
                     currentClient = new ClientSession(clientSocket);
-                    Server.ActiveClients.Add(clientIp, currentClient);
-                    Server.ActiveClients[clientIp].queryHandler = this;
+                    currentClient.clientStatus = ClientStatus.Visitor;
+                    currentClient.queryHandler = this;
                 }
 
                 Query = new HttpQuery();
